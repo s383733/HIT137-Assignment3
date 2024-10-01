@@ -16,7 +16,7 @@ class AI_app:
         self.upload_button = tk.Button(root, text = "Upload", command = self.upload_image)  #Create a button for image uploading
         self.upload_button.pack()       #Pack the button within the window
 
-        self.predict_button = tk.Button(root, text = "Predict", command = self.classify_image)  #Create a button to initiate animal prediciton
+        self.predict_button = tk.Button(root, text = "Predict", command = self.detect_animal)  #Create a button to initiate animal prediciton
         self.predict_button.pack()      #Pack the button within the window
 
         self.result_label = tk.Label(root, text = "")   #Create a label for the results

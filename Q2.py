@@ -4,71 +4,55 @@ import random
 # Initialize Pygame
 pygame.init()
 
-# Screen dimensions
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Side-Scrolling Game")
+# Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+FPS = 60
+GRAVITY = 0.5
+ENEMY_SPAWN_RATE = 30  # Frames between enemy spawns
 
 # Colors
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
 
-# Clock for controlling the frame rate
-clock = pygame.time.Clock()
-FPS = 60
-
-# Game variables
-GRAVITY = 1
-PLAYER_SPEED = 5
-JUMP_STRENGTH = 15
-PROJECTILE_SPEED = 10
-ENEMY_SPEED = 3
-LEVEL_COUNT = 3
-
-# Define classes
+# Player class
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self):
         super().__init__()
         self.image = pygame.Surface((50, 50))
-        self.image.fill(GREEN)
+        self.image.fill(BLUE)
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.vel_y = 0
-        self.health = 100
-        self.lives = 3
-        self.score = 0
+        self.rect.x = 50
+        self.rect.y = SCREEN_HEIGHT - 70
+        self.speed_x = 0
+        self.speed_y = 0
+        self.jumps = 0
 
-    def move(self, left, right, jumping):
-        # Horizontal movement
-        if left:
-            self.rect.x -= PLAYER_SPEED
-        if right:
-            self.rect.x += PLAYER_SPEED
+    def update(self):
+        self.speed_y += GRAVITY
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
 
-        # Apply gravity
-        self.vel_y += GRAVITY
-        if self.vel_y > 10:
-            self.vel_y = 10
+        # Ground collision
+        if self.rect.y >= SCREEN_HEIGHT - 70:
+            self.rect.y = SCREEN_HEIGHT - 70
+            self.speed_y = 0
+            self.jumps = 0
 
-        # Jumping
-        if jumping:
-            self.vel_y = -JUMP_STRENGTH
-
-        # Update vertical position
-        self.rect.y += self.vel_y
-
-        # Prevent player from falling off the screen
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
-            self.vel_y = 0
+    def jump(self):
+        if self.jumps < 2:
+            self.speed_y = -15
+            self.jumps += 1
 
     def shoot(self):
-        projectile = Projectile(self.rect.centerx, self.rect.centery)
+        projectile = Projectile(self.rect.centerx, self.rect.top)
         all_sprites.add(projectile)
         projectiles.add(projectile)
 
+# Projectile class
 class Projectile(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -76,120 +60,151 @@ class Projectile(pygame.sprite.Sprite):
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.speed_x = 10
 
     def update(self):
-        self.rect.x += PROJECTILE_SPEED
-        # Remove the projectile if it moves off screen
-        if self.rect.left > WIDTH:
+        self.rect.x += self.speed_x
+        if self.rect.x > SCREEN_WIDTH:
             self.kill()
 
+# Enemy class
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self):
         super().__init__()
         self.image = pygame.Surface((50, 50))
-        self.image.fill(RED)
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.x = SCREEN_WIDTH
+        self.rect.y = SCREEN_HEIGHT - 70
 
     def update(self):
-        self.rect.x -= ENEMY_SPEED
-        # Remove the enemy if it moves off screen
-        if self.rect.right < 0:
-            self.kill()
+        self.rect.x -= 5
+        if self.rect.x < -50:
+            self.kill()  # Remove enemy when it goes off-screen
 
+# Collectible class
 class Collectible(pygame.sprite.Sprite):
-    def __init__(self, x, y, type):
+    def __init__(self):
         super().__init__()
         self.image = pygame.Surface((30, 30))
-        if type == "health":
-            self.image.fill(GREEN)
-        elif type == "life":
-            self.image.fill(RED)
+        self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.type = type
+        self.rect.x = random.randint(0, SCREEN_WIDTH)
+        self.rect.y = random.randint(0, SCREEN_HEIGHT - 70)
 
-# Game Over function
-def game_over():
-    font = pygame.font.SysFont("Arial", 72)
-    text = font.render("GAME OVER", True, RED)
-    screen.blit(text, (WIDTH//4, HEIGHT//3))
-    pygame.display.flip()
-    pygame.time.wait(2000)
+# Level class
+class Level:
+    def __init__(self):
+        self.enemies = pygame.sprite.Group()
+        self.collectibles = pygame.sprite.Group()
+        self.spawn_collectibles(3)  # Initial collectibles
 
-# Sprite groups
-all_sprites = pygame.sprite.Group()
-enemies = pygame.sprite.Group()
-projectiles = pygame.sprite.Group()
-collectibles = pygame.sprite.Group()
+    def spawn_enemies(self):
+        if len(self.enemies) < 5:  # Keep a max number of enemies on screen
+            enemy = Enemy()
+            self.enemies.add(enemy)
+            all_sprites.add(enemy)
 
-# Create player
-player = Player(100, HEIGHT-100)
-all_sprites.add(player)
+    def spawn_collectibles(self, count):
+        for _ in range(count):
+            collectible = Collectible()
+            self.collectibles.add(collectible)
+            all_sprites.add(collectible)
 
-# Main game loop
-level = 1
-running = True
-while running:
-    screen.fill(WHITE)
+# Game class
+class Game:
+    def __init__(self):
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption("Side Scrolling Game")
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.game_over = False
+        self.score = 0
+        self.frames = 0  # Track frames for enemy spawning
+        self.reset_game()
 
-    # Event handling
-    left, right, jumping = False, False, False
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                left = True
-            if event.key == pygame.K_RIGHT:
-                right = True
-            if event.key == pygame.K_SPACE:
-                player.shoot()
-            if event.key == pygame.K_UP:
-                jumping = True
+    def reset_game(self):
+        global all_sprites, projectiles
+        all_sprites = pygame.sprite.Group()
+        projectiles = pygame.sprite.Group()
 
-    # Spawn enemies and collectibles
-    if random.randint(0, 100) < 2:
-        enemy = Enemy(WIDTH, HEIGHT-100)
-        all_sprites.add(enemy)
-        enemies.add(enemy)
+        self.level = Level()
+        self.player = Player()
+        all_sprites.add(self.player)
 
-    if random.randint(0, 100) < 1:
-        collectible = Collectible(random.randint(WIDTH, WIDTH+200), HEIGHT-100, random.choice(["health", "life"]))
-        all_sprites.add(collectible)
-        collectibles.add(collectible)
+        self.score = 0
+        self.game_over = False  # Reset game over status
 
-    # Update sprites
-    player.move(left, right, jumping)
-    all_sprites.update()
+    def run(self):
+        while self.running:
+            self.handle_events()
+            if not self.game_over:
+                self.update()
+            self.draw()
+            self.clock.tick(FPS)
 
-    # Check for collisions
-    enemy_hits = pygame.sprite.groupcollide(projectiles, enemies, True, True)
-    for hit in enemy_hits:
-        player.score += 100
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if self.game_over:
+                    if event.key == pygame.K_r:  # Restart the game
+                        self.reset_game()
+                else:
+                    if event.key == pygame.K_SPACE:
+                        self.player.jump()
+                    elif event.key == pygame.K_z:
+                        self.player.shoot()
+                    elif event.key == pygame.K_RIGHT:
+                        self.player.speed_x = 5
+                    elif event.key == pygame.K_LEFT:
+                        self.player.speed_x = -5
+            elif event.type == pygame.KEYUP:
+                if event.key in [pygame.K_RIGHT, pygame.K_LEFT]:
+                    self.player.speed_x = 0
 
-    player_hits = pygame.sprite.spritecollide(player, enemies, True)
-    for hit in player_hits:
-        player.health -= 20
-        if player.health <= 0:
-            player.lives -= 1
-            player.health = 100
-            if player.lives == 0:
-                game_over()
-                running = False
+    def update(self):
+        all_sprites.update()
 
-    collectible_hits = pygame.sprite.spritecollide(player, collectibles, True)
-    for hit in collectible_hits:
-        if hit.type == "health":
-            player.health += 20
-        elif hit.type == "life":
-            player.lives += 1
+        # Enemy spawning logic
+        self.frames += 1
+        if self.frames % ENEMY_SPAWN_RATE == 0:
+            self.level.spawn_enemies()
 
-    # Draw everything
-    all_sprites.draw(screen)
-    pygame.display.flip()
+        # Collision detection for projectiles and enemies
+        for projectile in projectiles:
+            hits = pygame.sprite.spritecollide(projectile, self.level.enemies, True)
+            for hit in hits:
+                projectile.kill()
+                self.score += 1
 
-    # Cap the frame rate
-    clock.tick(FPS)
+        # Check if the player has collided with any enemies (game over condition)
+        if pygame.sprite.spritecollideany(self.player, self.level.enemies):
+            self.game_over = True
 
-pygame.quit()
+        # Check for collectible collisions
+        collectible_hits = pygame.sprite.spritecollide(self.player, self.level.collectibles, True)
+        for hit in collectible_hits:
+            self.score += 5
+
+    def draw(self):
+        self.screen.fill(BLACK)
+        all_sprites.draw(self.screen)
+        
+        score_text = pygame.font.Font(None, 36).render(f'Score: {self.score}', True, WHITE)
+        self.screen.blit(score_text, (10, 10))
+        
+        if self.game_over:
+            game_over_text = pygame.font.Font(None, 72).render('Game Over', True, WHITE)
+            restart_text = pygame.font.Font(None, 36).render('Press R to Restart', True, WHITE)
+            self.screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, SCREEN_HEIGHT // 2 - 36))
+            self.screen.blit(restart_text, (SCREEN_WIDTH // 2 - restart_text.get_width() // 2, SCREEN_HEIGHT // 2 + 10))
+        
+        pygame.display.flip()
+
+# Main loop
+if __name__ == "__main__":
+    game = Game()
+    game.run()
+    pygame.quit()

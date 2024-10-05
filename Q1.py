@@ -21,10 +21,10 @@ class Login_to_App:
         self.guest_button.grid(row=1, column=1, padx=10, pady=10)
 
         self.or_label = tk.Label(root, text = "-------- or ---------")
-        self.or_label.grid(row=2, column=0, padx=20)
+        self.or_label.grid(row=2, column=0, columnspan=2, padx=20)
 
         self.sign_up_button = tk.Button(root, text = "Create Account", command = self.create_account_page)
-        self.sign_up_button.grid(row=3, column=0, padx=20)
+        self.sign_up_button.grid(row=3, column=0, columnspan=2, padx=20)
     
     def login_page(self):
         self.login_screen = tk.Toplevel(self.root)
@@ -155,7 +155,7 @@ class AI_app:
 
     def help_centre_message(self):
         self.help_message = messagebox.showwarning("Help", "No help available at this time, good luck")
-        
+
 root = tk.Tk()
 login_app = Login_to_App(root)
 root.mainloop()

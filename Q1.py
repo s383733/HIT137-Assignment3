@@ -62,7 +62,29 @@ class Login_to_App:
 
     def guest_mode(self):
         self.open_AI_app(full_version = False)
+    
+    def create_account_page(self):
+        self.create_account_screen = tk.Toplevel(self.root)
+        self.create_account_screen.title("Please create an account to proceed")
 
+        self.create_username_label = tk.Label(self.create_account_screen, text = "Please create a username")
+        self.create_username_label.grid(row=0, column=0, padx=5, pady=5)
+        self.create_password_label = tk.Label(self.create_account_screen, text = "Please create a password")
+        self.create_password_label.grid(row=1, column=0, padx=5, pady=5)
+
+        self.create_username_entry = tk.Entry(self.create_account_screen)
+        self.create_username_entry.grid(row=0, column=0, padx=5, pady=5)
+        self.create_password_entry = tk.Entry(self.create_account_screen)
+        self.create_password_entry.grid(row=1, column=0, padx=5, pady=5)
+
+        self.create_account_button = tk.Button(self.login_screen, text = "Finish creating account and return to log in", command = self.finish_creating_account)
+        self.create_account_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+    
+    def finish_creating_account(self, full_version):
+        self.account_created_message = messagebox.showinfo("Account created successfully")
+        self.root.withdraw()
+        ai_window = tk.Toplevel(self.root)
+        app = AI_app(ai_window, full_version)
 
 class AI_app:
     def __init__(self, root, full_version):
@@ -120,5 +142,5 @@ class AI_app:
             result.show()       #Show the results and confidence for each box
 
 root = tk.Tk()
-app = AI_app(root)
+login_app = Login_to_App(root)
 root.mainloop()

@@ -36,9 +36,9 @@ class Login_to_App:
         self.password_label.grid(row=1, column=0, padx=5, pady=5)
 
         self.username_entry = tk.Entry(self.login_screen)
-        self.username_entry.grid(row=0, column=0, padx=5, pady=5)
+        self.username_entry.grid(row=0, column=1, padx=5, pady=5)
         self.password_entry = tk.Entry(self.login_screen, show = "*")
-        self.password_entry.grid(row=1, column=0, padx=5, pady=5)
+        self.password_entry.grid(row=1, column=1, padx=5, pady=5)
 
         self.sign_in_button = tk.Button(self.login_screen, text = "Sign In", command = self.check_login_details)
         self.sign_in_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
@@ -48,11 +48,11 @@ class Login_to_App:
         password = self.password_entry.get()
 
         if username == "HIT137" and password == "Group100":
-            messagebox.showinfo("Sign in successful")
+            messagebox.showinfo("Success", "Sign in successful")
             self.login_screen.destroy()
             self.open_AI_app(full_version = True)
         else:
-            messagebox.showerror("Incorrect username or password")
+            messagebox.showerror("Error", "Incorrect username or password")
             self.login_screen.destroy()
 
     def open_AI_app(self, full_version):
@@ -73,11 +73,11 @@ class Login_to_App:
         self.create_password_label.grid(row=1, column=0, padx=5, pady=5)
 
         self.create_username_entry = tk.Entry(self.create_account_screen)
-        self.create_username_entry.grid(row=0, column=0, padx=5, pady=5)
+        self.create_username_entry.grid(row=0, column=1, padx=5, pady=5)
         self.create_password_entry = tk.Entry(self.create_account_screen)
-        self.create_password_entry.grid(row=1, column=0, padx=5, pady=5)
+        self.create_password_entry.grid(row=1, column=1, padx=5, pady=5)
 
-        self.create_account_button = tk.Button(self.login_screen, text = "Finish creating account and return to log in", command = self.finish_creating_account)
+        self.create_account_button = tk.Button(self.create_account_screen, text = "Finish creating account and return to log in", command = self.finish_creating_account)
         self.create_account_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
     
     def finish_creating_account(self, full_version):
@@ -91,19 +91,19 @@ class AI_app:
         self.root = root        #Initialise root window
         self.root.title("Animal Detection Service")     #Give a title to the window
 
-        self.about = tk.Button(root, text = "About")#, command = self.about_message) 
+        self.about = tk.Button(root, text = "About", command = self.about_message) 
         self.about.grid(row=10, column=1, padx=5, pady=5)
 
-        self.dowload_app = tk.Button(root, text = "Download the App")#, command = self.download_app_link)
+        self.dowload_app = tk.Button(root, text = "Download the App", command = self.download_app_link)
         self.dowload_app.grid(row=10, column=2, padx=5, pady=5)
 
-        self.terms_of_service = tk.Button(root, text= "Terms of Service")#, command = self.terms_of_service_message)
+        self.terms_of_service = tk.Button(root, text= "Terms of Service", command = self.terms_of_service_message)
         self.terms_of_service.grid(row=10, column=3, padx=5, pady=5)
 
-        self.privacy_policy = tk.Button(root, text= "Terms of Service")#, command = self.privacy_policy_message)
+        self.privacy_policy = tk.Button(root, text= "Privacy Policy", command = self.privacy_policy_message)
         self.privacy_policy.grid(row=10, column=4, padx=5, pady=5)
 
-        self.help_centre = tk.Button(root, text= "Terms of Service")#, command = self.help_centre_message)
+        self.help_centre = tk.Button(root, text= "Help Centre", command = self.help_centre_message)
         self.help_centre.grid(row=10, column=5, padx=5, pady=5)
 
         self.upload_label = tk.Label(root, text = "Upload Your Image")      #Create a label for image uploading
@@ -141,6 +141,21 @@ class AI_app:
             print(result.boxes)     #print the boxes onto the image showing the classified animals
             result.show()       #Show the results and confidence for each box
 
+    def about_message(self):
+        self.about_button = messagebox.showinfo("About", "This app was created to identify the animals in an uploaded image using AI")
+
+    def download_app_link(self):
+        self.download_link = messagebox.showerror("Unavailable", "Website currently unavailable")   
+  
+    def terms_of_service_message(self):
+        self.terms_of_service = messagebox.showinfo("Terms", "Treat others how you would want to be treated")
+
+    def privacy_policy_message(self):
+        self.privacy_message = messagebox.showinfo("Privacy", "Your secrets are safe with us")
+
+    def help_centre_message(self):
+        self.help_message = messagebox.showwarning("Help", "No help available at this time, good luck")
+        
 root = tk.Tk()
 login_app = Login_to_App(root)
 root.mainloop()

@@ -1,3 +1,7 @@
+# HIT137 Assignment3
+# Answer to Q1
+# Available at Git repo: https://github.com/s383733/HIT137-Assignment3
+
 import tkinter as tk
 from tkinter import messagebox
 from langdetect import detect, DetectorFactory

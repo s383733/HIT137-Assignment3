@@ -1,3 +1,8 @@
+# HIT137 Assignment3
+# Answer to Q2
+# Available at Git repo: https://github.com/s383733/HIT137-Assignment3
+
+
 import pygame
 import random
 

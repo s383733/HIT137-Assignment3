@@ -40,8 +40,10 @@ def welcome_screen():
     screen.fill(BLACK)
     title_text = font.render("Welcome to Side Scroller 2D Game by Group100", True, YELLOW)
     instruction_text = font.render("Press any key to start", True, WHITE)
+    additional_text = font.render("Use Arrow keys to move/jump, Space to shoot", True, WHITE)
     screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 3))
     screen.blit(instruction_text, (WIDTH // 2 - instruction_text.get_width() // 2, HEIGHT // 2))
+    screen.blit(additional_text, (WIDTH // 2 - additional_text.get_width() // 2, HEIGHT // 2 + 80))
     pygame.display.flip()
 
     waiting = True
